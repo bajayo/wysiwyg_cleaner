@@ -88,7 +88,7 @@
             var currentClass = '';
             $(`#links_count`).html(textToReplaceArray.length);
             for (let i = 0; i < textToReplaceArray.length; i++) {
-                $(`#current`).html(i);
+                $(`#current`).html(i + 1);
 
                 if (textToReplaceArray[i].includes('nilink') || textToReplaceArray[i].includes('nilink')) {
                     let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
