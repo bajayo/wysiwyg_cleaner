@@ -42,39 +42,6 @@
         var REL = 'rel';
 
 
-        function removeAttributes(anchorHtml) {
-            return anchorHtml
-                .replace(_regexHref, '')
-                .replace(_regexProductId, '')
-                .replace(_regexRel);
-        }
-
-        function getHrefAttribute(product) {
-            const { affiliateLink } = product;
-
-            return `href="${affiliateLink}"`;
-        }
-
-        function getIconPathAttribute(product) {
-            const { iconPath } = product;
-
-            if (iconPath) {
-                return `${DATA_ICON_PATH_ATTR}="${iconPath}"`;
-            }
-
-            return '';
-        }
-
-        function getProductIdAttribute(product) {
-            const { productId } = product;
-
-            if (productId) {
-                return `${DATA_PRODUCT_ID_ATTR}="${productId}"`;
-            }
-
-            return '';
-        }
-
         function getDisplayNameAttribute(product) {
             const { displayName = '' } = product;
 
@@ -99,7 +66,7 @@
             console.log($(`#current-data-${key}`).val());
             return $(`#new-data-${key}`).val().length > 0 ?
                 ` data-${key}="${$(`#new-data-${key}`).val()}"` :
-                $(`#current-data-${key}`).val().length > 0 ? ` data-${key}="${$(`#current-data-${key}`).val()}"` : "";
+                $(`#current-data-${key}`).val().length > 0 ? $(`#current-data-${key}`).val() : "";
         }
         $.LinkConverter = async function (html) {
             // alert(html);
@@ -232,7 +199,7 @@
             var dialog = $("#dialog");
 
             $('#current-data-display-name').val(anchorAttributes['data-display-name']);
-            $('#current-data-anchor-value').val(anchorAttributes['data-anchor-value']);
+            $('#current-data-anchor-value').val(anchorAttributes['data-anchor-value'].trim());
             $('#current-data-product-id').val(anchorAttributes['data-product-id']);
             $('#current-data-link-media-type').val(anchorAttributes['data-link-media-type']);
             $('#current-data-data-blrs').val(anchorAttributes['data-data-blrs']);
@@ -303,8 +270,8 @@
                 </tr>
                 <tr>
                     <td><label>Link Text</label></td>
-                    <td><input type='text' id='current-data-anchor-value'></td>
-                    <td><input type='text' id='new-data-anchor-value'></td>
+                    <td><textarea id="current-data-anchor-value" rows="4" cols="20"></textarea></td>
+                    <td><textarea id="new-data-anchor-value" rows="4" cols="20"></textarea></td>
                     <td>
                         <button onclick="useExisting('data-anchor-value')">Use Current</button>
                     </td>
