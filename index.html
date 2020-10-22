@@ -218,7 +218,7 @@
             overlay.show();
             dialog.show();
 
-            $(dialog).on("click", "#ok", deferred.resolve).on("click", "#cancel", deferred.reject);
+            $(dialog).on("click", "#ok", deferred.resolve);
 
             return deferred.promise();
         };
@@ -343,7 +343,6 @@
             <br />
             <br />
             <button id='ok'>Next</button>
-            <button id='cancel'>Cancel</button>
         </center>
     </div>
 
