@@ -86,8 +86,9 @@
             let textToReplaceArray = (html.match(regexAnchorMatch) || []);
             console.log('textToReplaceArray', textToReplaceArray);
             var currentClass = '';
-
+            $(`#links_count`).html(textToReplaceArray.length);
             for (let i = 0; i < textToReplaceArray.length; i++) {
+                $(`#current`).html(i);
 
                 if (textToReplaceArray[i].includes('nilink') || textToReplaceArray[i].includes('nilink')) {
                     let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
@@ -267,7 +268,7 @@
     <div class='overlay' id='overlay'></div>
     <div class='dialog' id='dialog'>
         <center>
-            <h2>Fix link <span id='current'>1</span> out of <span id='links_count'>1</span></h2>
+            <h2>Fix Product/CTA link <span id='current'>1</span> out of <span id='links_count'>1</span></h2>
             <table border="2">
                 <tr>
                     <th>Prop Name</th>
