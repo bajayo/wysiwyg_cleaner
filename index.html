@@ -77,44 +77,53 @@
             const regexAnchor = () => /<a([^>]*)>([\s\S]*?)<\/a>/;
             const _regexAnchor = regexAnchor();
 
-            const regexCtaButtonLink = /class=['"].*?cta-button[^'"]*/;
-            const regexProductLink = /class=['"].*?nilink[^'"]*/;
+            const regexCtaButtonLink = () => /class=['"].*?cta-button[^'"]*/;
+            const regexProductLink = () => /class=['"].*?nilink[^'"]*/;
+
+            const _regexCtaButtonLink = regexCtaButtonLink();
+            const _regexProductLink = regexProductLink();
 
             let textToReplaceArray = (html.match(regexAnchorMatch) || []);
             console.log('textToReplaceArray', textToReplaceArray);
+            var currentClass = '';
 
             for (let i = 0; i < textToReplaceArray.length; i++) {
-                let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
-                console.log('textToReplace = ', textToReplaceArray[i]);
 
-                //await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2]));
+                if (textToReplaceArray[i].includes('nilink') || textToReplaceArray[i].includes('nilink')) {
+                    let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
+                    console.log('textToReplace = ', textToReplaceArray[i]);
+                    currentClass = _regexProductLink.exec(textToReplaceArray[i]) || _regexCtaButtonLink.exec(textToReplaceArray[i]) || [];
+                    currentClass[0] = currentClass[0] && currentClass[0].length > 0 ? currentClass[0] + '"' : '';
+                    console.log('currentClass =', currentClass[0]);
+                    //await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2]));
 
-                let res = await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
+                    let res = await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
 
-                    let dispName = $.getNewValFromForm('display-name');
-                    let prodId = $.getNewValFromForm('product-id');
-                    let linkMediaType = $.getNewValFromForm('link-media-type');
-                    let linkType = $.getNewValFromForm('link-type');
-                    let blrs = $.getNewValFromForm('blrs');
-                    let siteId = $.getNewValFromForm('site-id');
-                    let verticalId = $.getNewValFromForm('vertical-id');
-                    let roleId = $.getNewValFromForm('role-id');
-                    let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
+                        let dispName = $.getNewValFromForm('display-name');
+                        let prodId = $.getNewValFromForm('product-id');
+                        let linkMediaType = $.getNewValFromForm('link-media-type');
+                        let linkType = $.getNewValFromForm('link-type');
+                        let blrs = $.getNewValFromForm('blrs');
+                        let siteId = $.getNewValFromForm('site-id');
+                        let verticalId = $.getNewValFromForm('vertical-id');
+                        let roleId = $.getNewValFromForm('role-id');
+                        let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
 
-                    newAnchor = `<a class="nilink" href="" ${dispName}${prodId}${linkMediaType}${blrs}${siteId}${verticalId}${roleId} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
+                        newAnchor = `<a ${currentClass[0]} href="" ${dispName}${prodId}${linkMediaType}${blrs}${siteId}${verticalId}${roleId} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
 
-                    console.log('newAnchor =', newAnchor);
+                        console.log('newAnchor =', newAnchor);
 
-                    html = html.replace(textToReplaceArray[i], newAnchor);
+                        html = html.replace(textToReplaceArray[i], newAnchor);
 
-                    $.cleanNewVals();
+                        $.cleanNewVals();
 
-                    overlay.hide();
-                    dialog.hide();
-                }).catch(e => {
-                    console.log('error =', e);
-                    alert('closed');
-                });
+                        overlay.hide();
+                        dialog.hide();
+                    }).catch(e => {
+                        console.log('error =', e);
+                        alert('closed');
+                    });
+                }
 
             }
 
