@@ -211,17 +211,17 @@
         function cleanEmpty() {
             // alert('cleaning');
             let str = document.getElementById("input_text").value;
-            const regex = "/<a(.*?)href=(((?!img).)*?)\"><\/a>/g";
+            const regex = /<a(.*?)href=(((?!img).)*?)\"><\/a>/g;
             const subst = ``;
 
             // The substituted value will be contained in the result variable
             const result = str.replace(regex, subst);
-
+            console.log(result);
             //removing empty
-            //return result;
+            return result;
 
             //not removing empty
-            return str;
+            // return str;
         }
 
         //modal
