@@ -62,11 +62,11 @@
         }
 
         $.getNewValFromForm = function (key) {
-            console.log($(`#new-data-${key}`).val());
-            console.log($(`#current-data-${key}`).val());
+            console.log("new=", $(`#new-data-${key}`).val());
+            console.log("current=", $(`#current-data-${key}`).val());
             return $(`#new-data-${key}`).val().length > 0 ?
                 ` data-${key}="${$(`#new-data-${key}`).val()}"` :
-                $(`#current-data-${key}`).val().length > 0 ? $(`#current-data-${key}`).val() : "";
+                $(`#current-data-${key}`).val().length > 0 ? ` data-${key}="${$(`#current-data-${key}`).val()}"` : "";
         }
         $.LinkConverter = async function (html) {
             // alert(html);
@@ -94,11 +94,12 @@
                     let dispName = $.getNewValFromForm('display-name');
                     let prodId = $.getNewValFromForm('product-id');
                     let linkMediaType = $.getNewValFromForm('link-media-type');
+                    let linkType = $.getNewValFromForm('link-type');
                     let blrs = $.getNewValFromForm('blrs');
                     let siteId = $.getNewValFromForm('site-id');
                     let verticalId = $.getNewValFromForm('vertical-id');
                     let roleId = $.getNewValFromForm('role-id');
-                    let anchorText = $.getNewValFromForm('anchor-value');
+                    let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
 
                     newAnchor = `<a class="nilink" href="" ${dispName}${prodId}${linkMediaType}${blrs}${siteId}${verticalId}${roleId} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
 
@@ -134,6 +135,7 @@
             const regexProductId = () => /data-product-id=["'](.*?)["']/m;
             const regexDisplayName = () => /data-display-name=["'](.*?)["']/m;
             const regexMediaType = () => /data-link-media-type=["'](.*?)["']/m;
+            const regexLinkType = () => /data-link-type=["'](.*?)["']/m;
             const regexBlrs = () => /data-data-blrs=["'](.*?)["']/m;
             const regexSiteId = () => /data-site-id=["'](.*?)["']/m;
             const regexVerticalId = () => /data-vertical-id=["'](.*?)["']/m;
@@ -143,6 +145,7 @@
             const _regexProductId = regexProductId();
             const _regexDisplayName = regexDisplayName();
             const _regexMediaType = regexMediaType();
+            const _regexLinkType = regexLinkType();
             const _regexBlrs = regexBlrs();
             const _regexSiteId = regexSiteId();
             const _regexVerticalId = regexVerticalId();
@@ -152,6 +155,7 @@
             const prodId = anchorAttributes.includes("data-product-id") ? _regexProductId.exec(anchorAttributes)[1] : null;
             const displayName = anchorAttributes.includes("data-display-name") ? _regexDisplayName.exec(anchorAttributes)[1] : null;
             const mediaType = anchorAttributes.includes("data-link-media-type") ? _regexMediaType.exec(anchorAttributes)[1] : null;
+            const linkType = anchorAttributes.includes("data-link-type") ? _regexLinkType.exec(anchorAttributes)[1] : null;
             const blrs = anchorAttributes.includes("data-data-blrs") ? _regexBlrs.exec(anchorAttributes)[1] : null;
             const siteId = anchorAttributes.includes("data-site-id") ? _regexSiteId.exec(anchorAttributes)[1] : null;
             const verticalId = anchorAttributes.includes("data-vertical-id") ? _regexVerticalId.exec(anchorAttributes)[1] : null;
@@ -161,6 +165,7 @@
                 "data-product-id": prodId,
                 "data-display-name": displayName,
                 "data-link-media-type": mediaType,
+                "data-media-type": linkType,
                 "data-data-blrs": blrs,
                 "data-site-id": siteId,
                 "data-vertical-id": verticalId,
@@ -202,6 +207,7 @@
             $('#current-data-anchor-value').val(anchorAttributes['data-anchor-value'].trim());
             $('#current-data-product-id').val(anchorAttributes['data-product-id']);
             $('#current-data-link-media-type').val(anchorAttributes['data-link-media-type']);
+            $('#current-data-link-type').val(anchorAttributes['data-link-type']);
             $('#current-data-data-blrs').val(anchorAttributes['data-data-blrs']);
             $('#current-data-site-id').val(anchorAttributes['data-site-id']);
             $('#current-data-vertical-id').val(anchorAttributes['data-vertical-id']);
@@ -282,6 +288,14 @@
                     <td><input type='text' id='new-data-product-id'></td>
                     <td>
                         <button onclick="useExisting('data-product-id')">Use Current</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>Link type (data-link-type)</label></td>
+                    <td><input type='text' id='current-data-link-type'></td>
+                    <td><input type='text' id='new-data-link-type'></td>
+                    <td>
+                        <button onclick="useExisting('data-link-type')">Use Current</button>
                     </td>
                 </tr>
                 <tr>
