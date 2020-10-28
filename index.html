@@ -29,6 +29,14 @@
             text-align: center;
             background-color: white;
         }
+
+        .product .internal {
+            display: none;
+        }
+
+        .internal .product {
+            display: none;
+        }
     </style>
     <script type="text/javascript">
         var DATA_PRODUCT_ID_ATTR = 'data-product-id';
@@ -63,7 +71,7 @@
         }
 
         $.getNewValFromForm = function (key) {
-            console.log("new=", $(`#new-data-${key}`).val());
+            console.log(`new= ${key}`, $(`#new-data-${key}`).val());
             console.log("current=", $(`#current-data-${key}`).val());
             return $(`#new-data-${key}`).val().length > 0 ?
                 ` data-${key}="${$(`#new-data-${key}`).val()}"` :
@@ -80,9 +88,11 @@
 
             const regexCtaButtonLink = () => /class=['"].*?cta-button[^'"]*/;
             const regexProductLink = () => /class=['"].*?nilink[^'"]*/;
+            const regexInternalLink = () => /data-link-type==['"].*?internal[^'"]*/;
 
             const _regexCtaButtonLink = regexCtaButtonLink();
             const _regexProductLink = regexProductLink();
+            const _regexInternalLink = regexInternalLink();
 
             let textToReplaceArray = (html.match(regexAnchorMatch) || []);
             console.log('textToReplaceArray', textToReplaceArray);
@@ -91,7 +101,8 @@
             for (let i = 0; i < textToReplaceArray.length; i++) {
                 $(`#current`).html(i + 1);
 
-                if (textToReplaceArray[i].includes('nilink') || textToReplaceArray[i].includes('nilink')) {
+                if (textToReplaceArray[i].includes('nilink')) {
+                    $(`#link-type`).html('Product/CTA');
                     let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
                     console.log('textToReplace = ', textToReplaceArray[i]);
                     currentClass = _regexProductLink.exec(textToReplaceArray[i]) || _regexCtaButtonLink.exec(textToReplaceArray[i]) || [];
@@ -99,7 +110,7 @@
                     console.log('currentClass =', currentClass[0]);
                     //await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2]));
 
-                    let res = await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
+                    let res = await $.product_modal($.convertLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
 
                         let dispName = $.getNewValFromForm('display-name');
                         let prodId = $.getNewValFromForm('product-id');
@@ -112,6 +123,44 @@
                         let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
 
                         newAnchor = `<a ${currentClass[0]} href="" ${dispName}${prodId}${linkMediaType}${blrs}${siteId}${verticalId}${roleId} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
+
+                        console.log('newAnchor =', newAnchor);
+
+                        html = html.replace(textToReplaceArray[i], newAnchor);
+
+                        $.cleanNewVals();
+
+                        overlay.hide();
+                        dialog.hide();
+                    }).catch(e => {
+                        console.log('error =', e);
+                        alert('closed');
+                    });
+                }
+                else if (textToReplaceArray[i].includes('data-link-type="internal"')) {
+                    $(`#link-type`).html('Internal');
+                    //"<a data-link-type="internal" data-page-type-id="5aba252ae934820001c1078d" data-page-type-name="article" data-page-type-seg-id="5aba2ac25ded790001b227df" data-role-id="content-link" data-segment-id="5aba2ac193ab04000134747b" data-site-id="5aba252a0a215f83ca672023" data-vertical-id="5aba2aae309d88000126ff9f" href="/articles/secured-vs-unsecured-personal-loans" rel="nofollow" target="_self">difference between a secured and unsecured loan</a>"
+                    let textToReplace = _regexAnchor.exec(textToReplaceArray[i]);
+                    console.log('textToReplace = ', textToReplaceArray[i]);
+                    currentClass = _regexInternalLink.exec(textToReplaceArray[i]) || [];
+                    currentClass[0] = currentClass[0] && currentClass[0].length > 0 ? currentClass[0] + '"' : '';
+                    console.log('currentClass =', currentClass[0]);
+                    //await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2]));
+
+                    let res = await $.internal_modal($.convertLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
+
+                        let linkType = $.getNewValFromForm('link-type');
+                        let siteId = $.getNewValFromForm('site-id');
+                        let verticalId = $.getNewValFromForm('vertical-id');
+                        let roleId = $.getNewValFromForm('role-id');
+                        let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
+
+                        let pageTypeId = $.getNewValFromForm('page-type-id');
+                        let segmentId = $.getNewValFromForm('segment-id');
+                        let pageTypeSedId = $.getNewValFromForm('page-type-seg-id');
+                        let pageTypeName = $.getNewValFromForm('page-type-name');
+
+                        newAnchor = `<a ${currentClass[0]} href="" ${linkType}${siteId}${verticalId}${roleId}${pageTypeId}${segmentId}${pageTypeSedId}${pageTypeName} rel="nofollow" target="_self">${anchorText}</a>`;
 
                         console.log('newAnchor =', newAnchor);
 
@@ -139,9 +188,8 @@
             return anchorHtml;
         }
 
-        $.convertProductLink = function (anchorHtml, anchorAttributes = '', anchorText) {
-            console.log('in productLinkConverter');
-            console.log('in convert anchorAttributes', anchorAttributes);
+        $.convertLink = function (anchorHtml, anchorAttributes = '', anchorText) {
+            console.log('in convertLink anchorAttributes', anchorAttributes);
 
             const regexProductId = () => /data-product-id=["'](.*?)["']/m;
             const regexDisplayName = () => /data-display-name=["'](.*?)["']/m;
@@ -151,6 +199,12 @@
             const regexSiteId = () => /data-site-id=["'](.*?)["']/m;
             const regexVerticalId = () => /data-vertical-id=["'](.*?)["']/m;
             const regexRoleId = () => /data-role-id=["'](.*?)["']/m;
+
+            const regexPageTypeId = () => /data-page-type-id=["'](.*?)["']/m;
+            const regexSegmentId = () => /data-segment-id=["'](.*?)["']/m;
+            const regexPageTypeSegmentId = () => /data-page-type-seg-id=["'](.*?)["']/m;
+            const regexPageTypeName = () => /data-page-type-name=["'](.*?)["']/m;
+
 
 
             const _regexProductId = regexProductId();
@@ -162,6 +216,11 @@
             const _regexVerticalId = regexVerticalId();
             const _regexRoleId = regexRoleId();
 
+            const _regexPageTypeId = regexPageTypeId();
+            const _regexSegmentId = regexSegmentId();
+            const _regexPageTypeSegmentId = regexPageTypeSegmentId();
+            const _regexPageTypeName = regexPageTypeName();
+
 
             const prodId = anchorAttributes.includes("data-product-id") ? _regexProductId.exec(anchorAttributes)[1] : null;
             const displayName = anchorAttributes.includes("data-display-name") ? _regexDisplayName.exec(anchorAttributes)[1] : null;
@@ -172,6 +231,11 @@
             const verticalId = anchorAttributes.includes("data-vertical-id") ? _regexVerticalId.exec(anchorAttributes)[1] : null;
             const roleId = anchorAttributes.includes("data-role-id") ? _regexRoleId.exec(anchorAttributes)[1] : null;
 
+            const pageTypeId = anchorAttributes.includes("data-page-type-id") ? _regexPageTypeId.exec(anchorAttributes)[1] : null;
+            const segmentId = anchorAttributes.includes("data-segment-id") ? _regexSegmentId.exec(anchorAttributes)[1] : null;
+            const pageTypeSegId = anchorAttributes.includes("data-page-type-seg-id") ? _regexPageTypeSegmentId.exec(anchorAttributes)[1] : null;
+            const pageTypeName = anchorAttributes.includes("data-page-type-name") ? _regexPageTypeName.exec(anchorAttributes)[1] : null;
+
             return {
                 "data-product-id": prodId,
                 "data-display-name": displayName,
@@ -181,7 +245,13 @@
                 "data-site-id": siteId,
                 "data-vertical-id": verticalId,
                 "data-role-id": roleId,
-                "data-anchor-value": anchorText
+                "data-anchor-value": anchorText,
+
+                "data-page-type-id": pageTypeId,
+                "data-segment-id": segmentId,
+                "data-page-type-seg-id": pageTypeSegId,
+                "data-page-type-name": pageTypeName
+
             }
 
 
@@ -218,6 +288,10 @@
             var overlay = $("#overlay");
             var dialog = $("#dialog");
 
+            $('#content-edit').removeClass("product");
+            $('#content-edit').removeClass("internal");
+            $('#content-edit').addClass("product");
+
             $('#current-data-display-name').val(anchorAttributes['data-display-name']);
             $('#current-data-anchor-value').val(anchorAttributes['data-anchor-value'].trim());
             $('#current-data-product-id').val(anchorAttributes['data-product-id']);
@@ -232,6 +306,38 @@
 
             overlay.show();
             dialog.show();
+
+            $(dialog).on("click", "#ok", deferred.resolve);
+
+            return deferred.promise();
+        };
+
+        $.internal_modal = async function (anchorAttributes) {
+            console.log('in internal modeal - anchorAttributes', anchorAttributes);
+
+            var overlay = $("#overlay");
+            var dialog = $("#dialog");
+
+            overlay.show();
+            dialog.show();
+
+            $('#content-edit').removeClass("product");
+            $('#content-edit').removeClass("internal");
+            $('#content-edit').addClass("internal");
+
+            $('#current-data-anchor-value').val(anchorAttributes['data-anchor-value'].trim());
+            $('#current-data-link-type').val(anchorAttributes['data-link-type']);
+            $('#current-data-site-id').val(anchorAttributes['data-site-id']);
+            $('#current-data-vertical-id').val(anchorAttributes['data-vertical-id']);
+            $('#current-data-role-id').val(anchorAttributes['data-role-id']);
+            $('#current-data-page-type-id').val(anchorAttributes['data-page-type-id']);
+            $('#current-data-page-type-name').val(anchorAttributes['data-page-type-name']);
+            $('#current-data-page-type-seg-id').val(anchorAttributes['data-page-type-seg-id']);
+            $('#current-data-segment-id').val(anchorAttributes['data-segment-id']);
+
+            let deferred = new $.Deferred();
+
+
 
             $(dialog).on("click", "#ok", deferred.resolve);
 
@@ -278,15 +384,16 @@
     <div class='overlay' id='overlay'></div>
     <div class='dialog' id='dialog'>
         <center>
-            <h2>Fix Product/CTA link <span id='current'>1</span> out of <span id='links_count'>1</span></h2>
-            <table border="2">
+            <h2>Fix <span id='link-type'>Product/CTA</span> link <span id='current'>1</span> out of <span
+                    id='links_count'>1</span></h2>
+            <table border="2" id="content-edit">
                 <tr>
                     <th>Prop Name</th>
                     <th>Current Value</th>
                     <th>New Value</th>
                     <th>Action</th>
                 </tr>
-                <tr>
+                <tr class="product">
                     <td><label>Product Display Name (data-display-name)</label></td>
                     <td><input type='text' id='current-data-display-name'></td>
                     <td><input type='text' id='new-data-display-name'></td>
@@ -294,7 +401,7 @@
                         <button onclick="useExisting('data-display-name')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="common">
                     <td><label>Link Text</label></td>
                     <td><textarea id="current-data-anchor-value" rows="4" cols="20"></textarea></td>
                     <td><textarea id="new-data-anchor-value" rows="4" cols="20"></textarea></td>
@@ -302,7 +409,7 @@
                         <button onclick="useExisting('data-anchor-value')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="product">
                     <td><label>Product id (data-product-id)</label></td>
                     <td><input type='text' id='current-data-product-id'></td>
                     <td><input type='text' id='new-data-product-id'></td>
@@ -310,7 +417,7 @@
                         <button onclick="useExisting('data-product-id')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="common">
                     <td><label>Link type (data-link-type)</label></td>
                     <td><input type='text' id='current-data-link-type'></td>
                     <td><input type='text' id='new-data-link-type'></td>
@@ -318,7 +425,7 @@
                         <button onclick="useExisting('data-link-type')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="product">
                     <td><label>Link media type (data-link-media-type)</label></td>
                     <td><input type='text' id='current-data-link-media-type'></td>
                     <td><input type='text' id='new-data-link-media-type'></td>
@@ -326,7 +433,7 @@
                         <button onclick="useExisting('data-link-media-type')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="product">
                     <td><label>Link BLRS (data-blrs)</label></td>
                     <td><input type='text' id='current-data-blrs'></td>
                     <td><input type='text' id='new-data-blrs'></td>
@@ -334,7 +441,7 @@
                         <button onclick="useExisting('data-blrs')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="common">
                     <td><label>Site ID (data-site-id)</label></td>
                     <td><input type='text' id='current-data-site-id'></td>
                     <td><input type='text' id='new-data-site-id'></td>
@@ -342,7 +449,7 @@
                         <button onclick="useExisting('data-site-id')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
+                <tr class="common">
                     <td><label>Vertical id (data-vertical-id)</label></td>
                     <td><input type='text' id='current-data-vertical-id'></td>
                     <td><input type='text' id='new-data-vertical-id'></td>
@@ -350,15 +457,46 @@
                         <button onclick="useExisting('data-vertical-id')">Use Current</button>
                     </td>
                 </tr>
-                <tr>
-                    <td><label>Role Id)</label></td>
+                <tr class="common">
+                    <td><label>Role Id</label></td>
                     <td><input type='text' id='current-data-role-id'></td>
                     <td><input type='text' id='new-data-role-id'></td>
                     <td>
                         <button onclick="useExisting('data-role-id')">Use Current</button>
                     </td>
                 </tr>
-
+                <tr class="internal">
+                    <td><label>Page Type id</label></td>
+                    <td><input type='text' id='current-data-page-type-id'></td>
+                    <td><input type='text' id='new-data-page-type-id'></td>
+                    <td>
+                        <button onclick="useExisting('data-page-type-id')">Use Current</button>
+                    </td>
+                </tr>
+                <tr class="internal">
+                    <td><label>Page Type Name</label></td>
+                    <td><input type='text' id='current-data-page-type-name'></td>
+                    <td><input type='text' id='new-data-page-type-name'></td>
+                    <td>
+                        <button onclick="useExisting('data-page-type-name')">Use Current</button>
+                    </td>
+                </tr>
+                <tr class="internal">
+                    <td><label>Page Type Segment Id</label></td>
+                    <td><input type='text' id='current-data-page-type-seg-id'></td>
+                    <td><input type='text' id='new-data-page-type-seg-id'></td>
+                    <td>
+                        <button onclick="useExisting('data-page-type-seg-id')">Use Current</button>
+                    </td>
+                </tr>
+                <tr class="internal">
+                    <td><label>Segment Id</label></td>
+                    <td><input type='text' id='current-data-segment-id'></td>
+                    <td><input type='text' id='new-data-segment-id'></td>
+                    <td>
+                        <button onclick="useExisting('data-segment-id')">Use Current</button>
+                    </td>
+                </tr>
             </table>
             <br />
             <br />
