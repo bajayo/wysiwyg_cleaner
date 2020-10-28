@@ -237,18 +237,22 @@
         $(function () {
             $("#btn").click(function async() {
                 let html = cleanEmpty();
-                $.LinkConverter(html).then(response => {
-                    var overlay = $("#overlay");
-                    var dialog = $("#dialog");
+                if ($("#prompt-prod-links").is(":checked")) {
+                    $.LinkConverter(html).then(response => {
+                        var overlay = $("#overlay");
+                        var dialog = $("#dialog");
 
-                    $("#output_text").val(response);
+                        $("#output_text").val(response);
 
-                    overlay.hide();
-                    dialog.hide();
-                }).catch(e => {
-                    console.log(e);
-                    alert('problem');
-                });
+                        overlay.hide();
+                        dialog.hide();
+                    }).catch(e => {
+                        console.log(e);
+                        alert('problem');
+                    });
+                } else {
+                    $("#output_text").val(html);
+                }
             });
         });
     </script>
@@ -259,6 +263,7 @@
         <h1>Oren's Wysiwyg HTML fixer</h1>
         <h3>No design yet, it was late...</h3>
         <h4>Before: (paste the damn thing here)</h4>
+        <input type="checkbox" id="prompt-prod-links"><label>Review product links</label><br />
         <textarea id="input_text" rows="20" cols="100"></textarea><br />
         <button id="btn" style="margin: 5px 0px;">Fix Markup</button><br />
         <h4>After: (Click on the text, click Crtl/Command + a -> Crtl/Command + c and you can paset it back in the
