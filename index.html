@@ -194,13 +194,17 @@
         function cleanEmpty() {
             // alert('cleaning');
             let str = document.getElementById("input_text").value;
-            const regex = /<a(.*?)href=(((?!img).)*?)\"><\/a>/g;
+            let regex = /<a(.*?)href=(((?!img).)*?)\"><\/a>/g;
             const subst = ``;
-
+            //removing empty p's
             // The substituted value will be contained in the result variable
-            const result = str.replace(regex, subst);
-            console.log(result);
-            //removing empty
+            let result = str.replace(regex, subst);
+            console.log('removed links = ', result);
+            //removing empty p's
+            regex = /<p[^>]*>\s*<\/p[^>]*>/g;
+            result = result.replace(regex, subst);
+            console.log('removed empty p = ', result);
+
             return result;
 
             //not removing empty
