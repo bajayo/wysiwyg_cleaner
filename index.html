@@ -56,7 +56,6 @@
         internalLinkDataAttribules.push('segment-id');
         internalLinkDataAttribules.push('page-type-seg-id');
         internalLinkDataAttribules.push('page-type-name');
-
         internalLinkDataAttribules.push('cta-button-type');
 
 
@@ -87,6 +86,7 @@
                 ` data-${key}="${$(`#new-data-${key}`).val()}"` :
                 $(`#current-data-${key}`).val().length > 0 ? ` data-${key}="${$(`#current-data-${key}`).val()}"` : "";
         }
+
         $.LinkConverter = async function (html) {
             // alert(html);
             var overlay = $("#overlay");
@@ -242,12 +242,13 @@
             const siteId = anchorAttributes.includes("data-site-id") ? _regexSiteId.exec(anchorAttributes)[1] : null;
             const verticalId = anchorAttributes.includes("data-vertical-id") ? _regexVerticalId.exec(anchorAttributes)[1] : null;
             const roleId = anchorAttributes.includes("data-role-id") ? _regexRoleId.exec(anchorAttributes)[1] : null;
+            const ctaButtonType = anchorAttributes.includes("data-cta-button-type") ? _regexCtaButtonType.exec(anchorAttributes)[1] : null;
 
             const pageTypeId = anchorAttributes.includes("data-page-type-id") ? _regexPageTypeId.exec(anchorAttributes)[1] : null;
             const segmentId = anchorAttributes.includes("data-segment-id") ? _regexSegmentId.exec(anchorAttributes)[1] : null;
             const pageTypeSegId = anchorAttributes.includes("data-page-type-seg-id") ? _regexPageTypeSegmentId.exec(anchorAttributes)[1] : null;
             const pageTypeName = anchorAttributes.includes("data-page-type-name") ? _regexPageTypeName.exec(anchorAttributes)[1] : null;
-            const ctaButtonType = anchorAttributes.includes("data-cta-button-type") ? _regexCtaButtonType.exec(anchorAttributes)[1] : null;
+
 
             return {
                 "data-product-id": prodId,
@@ -259,12 +260,12 @@
                 "data-vertical-id": verticalId,
                 "data-role-id": roleId,
                 "data-anchor-value": anchorText,
+                "data-cta-button-type": ctaButtonType,
 
                 "data-page-type-id": pageTypeId,
                 "data-segment-id": segmentId,
                 "data-page-type-seg-id": pageTypeSegId,
                 "data-page-type-name": pageTypeName,
-                "data-cta-button-type": ctaButtonType
 
             }
 
