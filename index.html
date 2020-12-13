@@ -39,16 +39,25 @@
         }
     </style>
     <script type="text/javascript">
-        var DATA_PRODUCT_ID_ATTR = 'data-product-id';
-        var DATA_DISPLAY_NAME_ATTR = 'data-display-name';
-        var DATA_ICON_PATH_ATTR = 'data-icon-path';
-        var DATA_LINK_MEDIA_TYPE_ATTR = 'data-link-media-type';
-        var DATA_ROLE_ID = 'data-role-id';
-        var DATA_BLRS_ATTR = 'data-blrs';
-        var DATA_SITE_ID = 'data-site-id';
-        var DATA_VERTICAL_ID = 'data-vertical-id';
-        var DATA_ROLE_ID = 'data-vertical-id';
-        var REL = 'rel';
+        var commonLinkDataAttribules = [];
+        var productLinkDataAttribules = [];
+        var internalLinkDataAttribules = [];
+
+        commonLinkDataAttribules.push('role-id');
+        commonLinkDataAttribules.push('vertical-id');
+        commonLinkDataAttribules.push('site-id');
+
+        productLinkDataAttribules.push('product-id');
+        productLinkDataAttribules.push('display-name');
+        productLinkDataAttribules.push('link-media-type');
+        productLinkDataAttribules.push('blrs');
+
+        internalLinkDataAttribules.push('page-type-id');
+        internalLinkDataAttribules.push('segment-id');
+        internalLinkDataAttribules.push('page-type-seg-id');
+        internalLinkDataAttribules.push('page-type-name');
+
+        internalLinkDataAttribules.push('cta-button-type');
 
 
         function getDisplayNameAttribute(product) {
@@ -68,6 +77,7 @@
             $('#new-data-site-id').val("");
             $('#new-data-vertical-id').val("");
             $('#new-data-anchor-value').val("");
+            $('#new-data-cta-button-type').val("");
         }
 
         $.getNewValFromForm = function (key) {
@@ -112,17 +122,19 @@
 
                     let res = await $.product_modal($.convertLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
 
-                        let dispName = $.getNewValFromForm('display-name');
-                        let prodId = $.getNewValFromForm('product-id');
-                        let linkMediaType = $.getNewValFromForm('link-media-type');
-                        let linkType = $.getNewValFromForm('link-type');
-                        let blrs = $.getNewValFromForm('blrs');
-                        let siteId = $.getNewValFromForm('site-id');
-                        let verticalId = $.getNewValFromForm('vertical-id');
-                        let roleId = $.getNewValFromForm('role-id');
+                        let linkDataAttributesArray = [];
+
+                        commonLinkDataAttribules.forEach(element => {
+                            linkDataAttributesArray.push($.getNewValFromForm(element))
+                        });
+
+                        productLinkDataAttribules.forEach(element => {
+                            linkDataAttributesArray.push($.getNewValFromForm(element))
+                        });
+
                         let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
 
-                        newAnchor = `<a ${currentClass[0]} href="" ${dispName}${prodId}${linkMediaType}${blrs}${siteId}${verticalId}${roleId} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
+                        newAnchor = `<a ${currentClass[0]} ${linkDataAttributesArray.join('')} rel="nofollow noopener noreferrer" target="_blank">${anchorText}</a>`;
 
                         console.log('newAnchor =', newAnchor);
 
@@ -148,19 +160,17 @@
                     //await $.product_modal($.convertProductLink(textToReplace[0], textToReplace[1], textToReplace[2]));
 
                     let res = await $.internal_modal($.convertLink(textToReplace[0], textToReplace[1], textToReplace[2])).then(() => {
+                        let linkDataAttributesArray = [];
 
-                        let linkType = $.getNewValFromForm('link-type');
-                        let siteId = $.getNewValFromForm('site-id');
-                        let verticalId = $.getNewValFromForm('vertical-id');
-                        let roleId = $.getNewValFromForm('role-id');
-                        let anchorText = $(`#new-data-anchor-value`).val().length > 0 ? $(`#new-data-anchor-value`).val() : $(`#current-data-anchor-value`).val();
+                        commonLinkDataAttribules.forEach(element => {
+                            linkDataAttributesArray.push($.getNewValFromForm(element))
+                        });
 
-                        let pageTypeId = $.getNewValFromForm('page-type-id');
-                        let segmentId = $.getNewValFromForm('segment-id');
-                        let pageTypeSedId = $.getNewValFromForm('page-type-seg-id');
-                        let pageTypeName = $.getNewValFromForm('page-type-name');
+                        internalLinkDataAttribules.forEach(element => {
+                            linkDataAttributesArray.push($.getNewValFromForm(element))
+                        });
 
-                        newAnchor = `<a ${currentClass[0]} href="" ${linkType}${siteId}${verticalId}${roleId}${pageTypeId}${segmentId}${pageTypeSedId}${pageTypeName} rel="nofollow" target="_self">${anchorText}</a>`;
+                        newAnchor = `<a ${currentClass[0]} ${linkDataAttributesArray.join('')} rel="nofollow" target="_self">${anchorText}</a>`;
 
                         console.log('newAnchor =', newAnchor);
 
@@ -204,6 +214,7 @@
             const regexSegmentId = () => /data-segment-id=["'](.*?)["']/m;
             const regexPageTypeSegmentId = () => /data-page-type-seg-id=["'](.*?)["']/m;
             const regexPageTypeName = () => /data-page-type-name=["'](.*?)["']/m;
+            const regexCtaButtonType = () => /data-cta-button-type=["'](.*?)["']/m;
 
 
 
@@ -220,6 +231,7 @@
             const _regexSegmentId = regexSegmentId();
             const _regexPageTypeSegmentId = regexPageTypeSegmentId();
             const _regexPageTypeName = regexPageTypeName();
+            const _regexCtaButtonType = regexCtaButtonType();
 
 
             const prodId = anchorAttributes.includes("data-product-id") ? _regexProductId.exec(anchorAttributes)[1] : null;
@@ -235,6 +247,7 @@
             const segmentId = anchorAttributes.includes("data-segment-id") ? _regexSegmentId.exec(anchorAttributes)[1] : null;
             const pageTypeSegId = anchorAttributes.includes("data-page-type-seg-id") ? _regexPageTypeSegmentId.exec(anchorAttributes)[1] : null;
             const pageTypeName = anchorAttributes.includes("data-page-type-name") ? _regexPageTypeName.exec(anchorAttributes)[1] : null;
+            const ctaButtonType = anchorAttributes.includes("data-cta-button-type") ? _regexCtaButtonType.exec(anchorAttributes)[1] : null;
 
             return {
                 "data-product-id": prodId,
@@ -250,7 +263,8 @@
                 "data-page-type-id": pageTypeId,
                 "data-segment-id": segmentId,
                 "data-page-type-seg-id": pageTypeSegId,
-                "data-page-type-name": pageTypeName
+                "data-page-type-name": pageTypeName,
+                "data-cta-button-type": ctaButtonType
 
             }
 
@@ -264,7 +278,7 @@
         function cleanEmpty() {
             // alert('cleaning');
             let str = document.getElementById("input_text").value;
-            let regex = /<a(.*?)href=(((?!img).)*?)\"><\/a>/g;
+            let regex = /<a[^>]*>\s*<\/a[^>]*>/g;
             const subst = ``;
             //removing empty p's
             // The substituted value will be contained in the result variable
@@ -273,7 +287,12 @@
             //removing empty p's
             regex = /<p[^>]*>\s*<\/p[^>]*>/g;
             result = result.replace(regex, subst);
-            console.log('removed empty p = ', result);
+
+            //removing empty strongs <strong></strong>
+            regex = /<strong[^>]*>\s*<\/strong[^>]*>/g;
+            result = result.replace(regex, subst);
+
+            console.log('removed empty strong = ', result);
 
             return result;
 
@@ -301,6 +320,7 @@
             $('#current-data-site-id').val(anchorAttributes['data-site-id']);
             $('#current-data-vertical-id').val(anchorAttributes['data-vertical-id']);
             $('#current-data-role-id').val(anchorAttributes['data-role-id']);
+            $('#current-data-cta-button-type').val(anchorAttributes['data-cta-button-type']);
 
             let deferred = new $.Deferred();
 
@@ -439,6 +459,14 @@
                     <td><input type='text' id='new-data-blrs'></td>
                     <td>
                         <button onclick="useExisting('data-blrs')">Use Current</button>
+                    </td>
+                </tr>
+                <tr class="product">
+                    <td><label>CTA Button Type</label></td>
+                    <td><input type='text' id='current-data-cta-button-type'></td>
+                    <td><input type='text' id='new-data-cta-button-type'></td>
+                    <td>
+                        <button onclick="useExisting('data-cta-button-type')">Use Current</button>
                     </td>
                 </tr>
                 <tr class="common">
